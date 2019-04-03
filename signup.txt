@@ -1,0 +1,39 @@
+In Controller----------------------->
+@RequestMapping(value = "/signUp", method=RequestMethod.POST)
+	public String signUp(@Valid @RequestBody User user) {
+		
+		if (service.ValidateUserDetails(user)) {
+			if (user.getRole() == Role.Customer) {
+				return "RegisterCustomerPage";
+			} else if (user.getRole() == Role.Merchant) {
+				return "RegisterMerchantPage";
+			}
+		} else {
+			// set error msg details are incorrect
+			return "SignUpPage";
+		}
+		return "SignUpPage";
+	}
+
+
+
+------> In Service
+@Override
+	public boolean ValidateLogIn(User user) {
+
+		User result;
+		try {
+		result = userRepo.findById(user.getEmailId()).get();
+		}catch (Exception e) {
+			return false;
+		}
+		if(result != null){
+			MD5 encryption = new MD5();
+			user.setPassword(encryption.encryptText(user.getPassword()));
+			if(result.equals(user)) {
+				return true;
+			}
+			return false;
+		}
+		return false;
+	}
